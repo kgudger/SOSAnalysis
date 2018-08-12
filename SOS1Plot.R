@@ -6,11 +6,11 @@ pot <-ddply(mdata, .(year), summarise, POT=sum(Pounds.of.Trash.Collected, na.rm 
 por <-ddply(mdata, .(year), summarise, POR=sum(Pounds.of.Recycle.Collected, na.rm = TRUE))
 cbs <- ddply(mdata, .(year), summarise, CBS=sum(Cigarette.Butts, na.rm = TRUE))
 # add in previous years' plastic bags?
-pgb <- ddply(mdata, .(year), summarise, PGB=sum(Plastic.Bags.Grocery, na.rm = TRUE))
+pgb <- ddply(mdata, .(year), summarise, PGB=sum(Plastic.Bags.Grocery,Plastic.Bags, na.rm = TRUE))
 pst <- ddply(mdata, .(year), summarise, PST=sum(Plastic.straws.stirrers, na.rm = TRUE))
 # for plot add in Metal Cans
 mdc <- ddply(mdata, .(year), summarise, MDC=sum(Metal.Cans, na.rm = TRUE))
-mcp <- ddply(mdata, .(year), summarise, MCP=sum(Metal.Bottle.Caps, na.rm = TRUE))
+mcp <- ddply(mdata, .(year), summarise, MCP=sum(Metal.Bottle.Caps.Pulls, na.rm = TRUE))
 # for plot add in Plastic Lids or Caps
 pcr <- ddply(mdata, .(year), summarise, PCR=sum(Plastic.Bottle.Caps,Plastic.Lids.or.Caps, na.rm = TRUE))
 # for plot add in Beverage.Bottles..Plastic.
@@ -52,20 +52,20 @@ library(ggplot2)
 library(GGally)
 ggcorr(mdata[,agrep("Plastic",colnames(mdata))],label=TRUE,alpha=TRUE)
 ggcorr(mdata[,agrep("Bag",colnames(mdata))],label=TRUE,alpha=TRUE)
-qplot(mdata$Plastic.Straws.Total,mdata$Plastic.Caps.Rings.Total,data=mdata,geom = c("point", "smooth"),method = "lm", alpha = I(1 / 5), se = FALSE)
+qplot(mdata$Plastic.straws.stirrers,mdata$Plastic.Bottle.Caps,data=mdata,geom = c("point", "smooth"),method = "lm", alpha = I(1 / 5), se = FALSE)
 MCOR <- cor(mdata[sapply(mdata, is.numeric)]) # correlation matrix
 MCOR[lower.tri(MCOR, diag = TRUE)] <- NA          # lower tri and diag set to NA
 subset(na.omit(data.frame(expand.grid(dimnames(MCOR)), value = c(MCOR))), value > .6999)
 qplot(mdata$Beverage.Cans,mdata$Beverage.Bottles..Glass.,data=mdata,geom = c("point", "smooth"),method = "lm", alpha = I(1 / 5), se = FALSE)
-qplot(mdata$Plastic.Bottles.Total,mdata$Glass.Bottles.Total,data=mdata,geom = c("point", "smooth"),method = "lm", alpha = I(1 / 5), se = FALSE)
+qplot(mdata$Plastic.Bottles,mdata$Glass.Bottles,data=mdata,geom = c("point", "smooth"),method = "lm", alpha = I(1 / 5), se = FALSE)
 # by beach name
-potb <-ddply(mdata, .(Cleanup.Site), summarise, POTB=sum(Pounds.of.Trash.Collected))
+potb <-ddply(mdata, .(Cleanup.Site), summarise, POTB=sum(Pounds.of.Trash.Collected, na.rm = TRUE))
 potb <- potb[potb$POTB>800,]
 barplot(potb$POTB, names.arg = potb$Cleanup.Site, cex.names = .5,las=2, main="Pounds of Trash")
 # by City / County
-ccty <-ddply(mdata, .(City.County), summarise, CCTY=sum(Pounds.of.Trash.Collected))
+ccty <-ddply(mdata, .(City.County), summarise, CCTY=sum(Pounds.of.Trash.Collected, na.rm = TRUE))
 barplot(ccty$CCTY, names.arg = ccty$City.County, cex.names = .5,las=2, main="Pounds of Trash")
-sdtt <- ddply(mdata, .(Cleanup.Date), summarise, SDTT=sum(Pounds.of.Trash.Collected))
+sdtt <- ddply(mdata, .(Cleanup.Date), summarise, SDTT=sum(Pounds.of.Trash.Collected, na.rm = TRUE))
 startdate <- as.Date(c("01/01/2017"), format = "%m/%d/%Y")
 enddate   <- as.Date(c("01/01/2018"), format = "%m/%d/%Y")
 sdtt <- sdtt[sdtt$Cleanup.Date<enddate,]
@@ -73,13 +73,13 @@ sdtt <- sdtt[sdtt$Cleanup.Date>=startdate,]
 #  trash plot for 2017
 barplot(sdtt$SDTT, names.arg = sdtt$Cleanup.Date, cex.names = .5,las=2, main="Pounds of Trash")
 # setup for Fireworks
-frw <- ddply(mdata, .(Cleanup.Date), summarise, FRW=sum(Fireworks))
+frw <- ddply(mdata, .(Cleanup.Date), summarise, FRW=sum(Fireworks, na.rm = TRUE))
 frw <- frw[frw$Cleanup.Date<enddate,]
 frw <- frw[frw$Cleanup.Date>=startdate,]
 #  Firworks plot for 2017
 barplot(frw$FRW, names.arg = frw$Cleanup.Date, cex.names = .5,las=2, main="Fireworks")
 # setup for Volunteer Hours
-vhr <- ddply(mdata, .(Cleanup.Date), summarise, VHR=sum(Volunteer.Hours))
+vhr <- ddply(mdata, .(Cleanup.Date), summarise, VHR=sum(Volunteer.Hours, na.rm = TRUE))
 vhr <- vhr[vhr$Cleanup.Date<enddate,]
 vhr <- vhr[vhr$Cleanup.Date>=startdate,]
 #  Volunteer Hours plot for 2017

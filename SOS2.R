@@ -2,7 +2,7 @@ read_rename <- function(csv) {
   df <- read.csv(csv)
   colnames(df)[agrep("Cigarette.Butts",colnames(df))] <- 
     "Cigarette.Butts"
-  colnames(df)[agrep("Plastic.Bags.Grocery",colnames(df))] <- 
+  colnames(df)[grep("Plastic.Bags..Grocery|Grocery.Bags",colnames(df),ignore.case=TRUE)] <- 
     "Plastic.Bags.Grocery"
   colnames(df)[agrep("Plastic.straws.stirrers",colnames(df))] <- 
     "Plastic.straws.stirrers"
@@ -14,12 +14,10 @@ read_rename <- function(csv) {
     "Tires"
   colnames(df)[agrep("id20",colnames(df))] <- 
     "id"
-  colnames(df)[agrep("Metal.Cans",colnames(df))] <- 
+  colnames(df)[grep("Metal.Cans|Metal.beverage.cans|Metal.Soda.cans|Metal.Beer.Cans",colnames(df),ignore.case=TRUE)] <- 
     "Metal.Cans"
-  colnames(df)[agrep("Metal.Bottle.Caps",colnames(df))] <- 
-    "Metal.Bottle.Caps"
-  colnames(df)[agrep("Metal.Can.Pulls",colnames(df))] <- 
-    "Metal.Can.Pulls"
+  colnames(df)[grep("Metal.Bottle.Caps|Metal.Can.pulls",colnames(df),ignore.case=TRUE)] <- 
+    "Metal.Bottle.Caps.Pulls"
   colnames(df)[agrep("Plastic.Bottle.Caps",colnames(df))] <- 
     "Plastic.Bottle.Caps"
   colnames(df)[grep("Plastic.Bottles",colnames(df),ignore.case=TRUE)] <-

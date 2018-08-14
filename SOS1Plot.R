@@ -50,14 +50,30 @@ legend("topleft", c("Plastic Bags","Straws","Metal Cans","Metal Tabs","Plastic T
 ind <- which(sapply(mdata, is.numeric))
 library(ggplot2)
 library(GGally)
-ggcorr(mdata[,agrep("Plastic",colnames(mdata))],label=TRUE,alpha=TRUE)
-ggcorr(mdata[,agrep("Bag",colnames(mdata))],label=TRUE,alpha=TRUE)
-qplot(mdata$Plastic.straws.stirrers,mdata$Plastic.Bottle.Caps,data=mdata,geom = c("point", "smooth"),method = "lm", alpha = I(1 / 5), se = FALSE)
-MCOR <- cor(mdata[sapply(mdata, is.numeric)]) # correlation matrix
+ggcorr(mdata[,agrep("Plastic",colnames(mdata))],method="pairwise",label=TRUE,alpha=TRUE, label_size = 3, hjust = 0.75, size = 2, layout.exp = 2)
+ggcorr(mdata[,agrep("Bag",colnames(mdata))], method="pairwise",label=TRUE,alpha=TRUE, label_size = 3, hjust = 0.75, size = 2, layout.exp = 2)
+qplot(mdata$Plastic.straws.stirrers,mdata$Plastic.Bottle.Caps,data=mdata,geom = c("point", "smooth"),method = "lm", alpha = I(1 / 5), se = FALSE) +
+  scale_x_log10() + scale_y_log10()
+MCOR <- cor(mdata[sapply(mdata, is.numeric)],use="p") # correlation matrix
 MCOR[lower.tri(MCOR, diag = TRUE)] <- NA          # lower tri and diag set to NA
-subset(na.omit(data.frame(expand.grid(dimnames(MCOR)), value = c(MCOR))), value > .6999)
-qplot(mdata$Beverage.Cans,mdata$Beverage.Bottles..Glass.,data=mdata,geom = c("point", "smooth"),method = "lm", alpha = I(1 / 5), se = FALSE)
-qplot(mdata$Plastic.Bottles,mdata$Glass.Bottles,data=mdata,geom = c("point", "smooth"),method = "lm", alpha = I(1 / 5), se = FALSE)
+sSet <- subset(na.omit(data.frame(expand.grid(dimnames(MCOR)), value = c(MCOR))), value > .6999)
+sSet <- sSet[order(sSet$value), ]
+write.csv(sSet, file="../SOSdata/Corr.csv",row.names=FALSE, na="")
+qplot(mdata$Beverage.Cans,mdata$Beverage.Bottles..Glass.,data=mdata,geom = c("point", "smooth"),method = "lm", alpha = I(1 / 5), se = FALSE) +
+  scale_x_log10() + scale_y_log10()
+
+qplot(mdata$Plastic.Bottles,mdata$Glass.Bottles,data=mdata,geom = c("point", "smooth"),method = "lm", alpha = I(1 / 5), se = FALSE) +
+  scale_x_log10() + scale_y_log10()
+
+qplot(mdata$Condoms,mdata$X6.Pack.Holders,data=mdata,geom = c("point", "smooth"),method = "lm", alpha = I(1 / 5), se = FALSE) +
+  scale_x_log10() + scale_y_log10()
+
+qplot(mdata$Lids..Plastic.,mdata$Straws.Stirrers,data=mdata,geom = c("point", "smooth"),method = "lm", alpha = I(1 / 5), se = FALSE) +
+  scale_x_log10() + scale_y_log10()
+
+qplot(mdata$Cigarette.Lighters,mdata$Cigarette.box.or.wrappers,data=mdata,geom = c("point", "smooth"),method = "lm", alpha = I(1 / 5), se = FALSE) +
+  scale_x_log10() + scale_y_log10()
+
 # by beach name
 potb <-ddply(mdata, .(Cleanup.Site), summarise, POTB=sum(Pounds.of.Trash.Collected, na.rm = TRUE))
 potb <- potb[potb$POTB>800,]

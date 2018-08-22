@@ -1,5 +1,13 @@
 mdata <- read.csv("../SOSdata/Merged.csv")
 mdata$Cleanup.Date <- as.Date(mdata$Cleanup.Date, format = "%m/%d/%Y")
+mdata[,"Volunteer.Hours"][is.na(mdata[ ,"Volunteer.Hours"] ) ] = 0
+mdata[,"X..of.Adults"][is.na(mdata[ ,"X..of.Adults"] ) ] = 0
+mdata[,"X..of.Youth"][is.na(mdata[ ,"X..of.Youth"] ) ] = 0
+mdata[,"X..of.Volunteers"][is.na(mdata[ ,"X..of.Volunteers"] ) ] = 0
+mdata$Volunteers.Total <- mdata$X..of.Adults + mdata$X..of.Youth + mdata$X..of.Volunteers
+mdata$Volunteer.Hours.Adjusted = ifelse(mdata$Volunteers.Total>mdata$Volunteer.Hours,
+                                        mdata$Volunteers.Total*mdata$Volunteer.Hours,
+                                        mdata$Volunteer.Hours)
 # plots below
 library(plyr)
 pot <-ddply(mdata, .(year), summarise, POT=sum(Pounds.of.Trash.Collected, na.rm = TRUE))
@@ -26,24 +34,41 @@ legend("topleft", c("Trash","Recycling"),
        col=c("red","green"), pch=c("O","X"));
 #
 barplot(cbs$CBS, names.arg=cbs$year, main="Cigarette Butts")
+
+vol <-ddply(mdata, .(year), summarise, VOL=sum(X..of.Adults,X..of.Youth,X..of.Volunteers, na.rm = TRUE))
+volh <-ddply(mdata, .(year), summarise, VOLH=sum(Volunteer.Hours.Adjusted, na.rm = TRUE))
+barplot(volh$VOLH, names.arg = volh$year, main="Volunteer Hours Adjusted")
+barplot(vol$VOL, names.arg = vol$year, main="Volunteers")
+barplot(volh$VOLH[-1]/vol$VOL[-1],names.arg=vol$year[-1],main="Volunteer Hours Adjusted / Volunteers")
+barplot(pot$POT/volh$VOLH, names.arg = pot$year, main="Pounds of Trash Per Volunteer Hour Adjusted")
+barplot(por$POR/volh$VOLH, names.arg = por$year, main="Pounds of Recycle Per Volunteer Hour Adjusted")
+
+barplot(pot$POT/vol$VOL, names.arg = pot$year, main="Pounds of Trash Per Volunteer")
+barplot(por$POR/vol$VOL, names.arg = por$year, main="Pounds of Recycle Per Volunteer")
+barplot(cbs$CBS[-1]/vol$VOL[-1], names.arg=cbs$year[-1], main="Cigarette Butts per Volunteer")
+barplot(cbs$CBS[-1]/volh$VOLH[-1], names.arg=cbs$year[-1], main="Cigarette Butts per Volunteer Hour Adjusted")
+
 barplot(pgb$PGB, names.arg=pgb$year, main="Plastic Grocery Bags")
-barplot(pst$PST, names.arg=pst$year, main="Plastic Straws / Stirrers")
-barplot(mdc$MDC, names.arg=mdc$year, main="Metal Drink Cans")
-barplot(mcp$MCP, names.arg=mcp$year, main="Metal Cans Tops")
-barplot(pcr$PCR, names.arg=pcr$year, main="Plastic Tops and Rings")
-barplot(pbt$PBT, names.arg=pbt$year, main="Plastic Bottles")
-barplot(gbt$GBT, names.arg=gbt$year, main="Glass Bottles")
+barplot(pgb$PGB[-1]/volh$VOLH[-1], names.arg=pgb$year[-1], main="Plastic Grocery Bags Per Volunteer Hour Adjusted")
+barplot(pgb$PGB[-1]/vol$VOL[-1], names.arg=pgb$year[-1], main="Plastic Grocery Bags Per Volunteer")
+
+barplot(pst$PST[-1]/volh$VOLH[-1], names.arg=pst$year[-1], main="Plastic Straws & Stirrers per Volunteer Hour Adjusted")
+barplot(mdc$MDC[-1]/volh$VOLH[-1], names.arg=mdc$year[-1], main="Metal Drink Cans per Volunteer Hour Adjusted")
+barplot(mcp$MCP[-1]/volh$VOLH[-1], names.arg=mcp$year[-1], main="Metal Cans Tops per Volunteer Hour Adjusted")
+barplot(pcr$PCR[-1]/volh$VOLH[-1], names.arg=pcr$year[-1], main="Plastic Tops and Rings per Volunteer Hour Adjusted")
+barplot(pbt$PBT[-1]/volh$VOLH[-1], names.arg=pbt$year[-1], main="Plastic Bottles per Volunteer Hour Adjusted")
+barplot(gbt$GBT[-1]/volh$VOLH[-1], names.arg=gbt$year[-1], main="Glass Bottles per Volunteer Hour Adjusted")
 # line plots of above items
 #plot(x=cbs$year,y=cbs$CBS,type="o",xlab="Year",ylab="Total",pch="O",col="red",main="Items Per Year")
 #lines(x=pgb$year,y=pgb$PGB,type="o",col="green", pch="X")
-g_range <- range(0, pgb$PGB, pst$PST,mdc$MDC,mcp$MCP,pcr$PCR,pbt$PBT,gbt$GBT)
-plot(x=pgb$year,y=pgb$PGB,type="o",ylim=g_range,xlab="Year",ylab="Total",pch="O",col="red",main="Items Per Year")
-lines(x=pst$year,y=pst$PST,type="o",col="blue", pch="P")
-lines(x=mdc$year,y=mdc$MDC,type="o",col="black", pch="M")
-lines(x=mcp$year,y=mcp$MCP,type="o",col="cyan", pch="T")
-lines(x=pcr$year,y=pcr$PCR,type="o",col="magenta", pch="R")
-lines(x=pbt$year,y=pbt$PBT,type="o",col="yellow", pch="B")
-lines(x=gbt$year,y=gbt$GBT,type="o",col="green", pch="G")
+g_range <- range(0, pgb$PGB[-1]/volh$VOLH[-1], pst$PST[-1]/volh$VOLH[-1],mdc$MDC[-1]/volh$VOLH[-1],mcp$MCP[-1]/volh$VOLH[-1],pcr$PCR[-1]/volh$VOLH[-1],pbt$PBT[-1]/volh$VOLH[-1],gbt$GBT[-1]/volh$VOLH[-1])
+plot(x=pgb$year[-1],y=pgb$PGB[-1]/volh$VOLH[-1],type="o",ylim=g_range,xlab="Year",ylab="Total",pch="X",col="red",main="Items Per Year Per Volunteer Hour Adjusted")
+lines(x=pst$year[-1],y=pst$PST[-1]/volh$VOLH[-1],type="o",col="blue", pch="P")
+lines(x=mdc$year[-1],y=mdc$MDC[-1]/volh$VOLH[-1],type="o",col="black", pch="M")
+lines(x=mcp$year[-1],y=mcp$MCP[-1]/volh$VOLH[-1],type="o",col="cyan", pch="T")
+lines(x=pcr$year[-1],y=pcr$PCR[-1]/volh$VOLH[-1],type="o",col="magenta", pch="R")
+lines(x=pbt$year[-1],y=pbt$PBT[-1]/volh$VOLH[-1],type="o",col="yellow", pch="B")
+lines(x=gbt$year[-1],y=gbt$GBT[-1]/volh$VOLH[-1],type="o",col="green", pch="G")
 legend("topleft", c("Plastic Bags","Straws","Metal Cans","Metal Tabs","Plastic Tops","Plastic Bottles","Glass Bottles"), 
        col=c("red","blue","black","cyan","magenta","yellow","green"), pch=c("X","P","M","T","R","B","G"));
 #
@@ -95,9 +120,9 @@ frw <- frw[frw$Cleanup.Date>=startdate,]
 #  Firworks plot for 2017
 barplot(frw$FRW, names.arg = frw$Cleanup.Date, cex.names = .5,las=2, main="Fireworks")
 # setup for Volunteer Hours
-vhr <- ddply(mdata, .(Cleanup.Date), summarise, VHR=sum(Volunteer.Hours, na.rm = TRUE))
+vhr <- ddply(mdata, .(Cleanup.Date), summarise, VHR=sum(Volunteer.Hours.Adjusted, na.rm = TRUE))
 vhr <- vhr[vhr$Cleanup.Date<enddate,]
 vhr <- vhr[vhr$Cleanup.Date>=startdate,]
 #  Volunteer Hours plot for 2017
-barplot(vhr$VHR, names.arg = vhr$Cleanup.Date, cex.names = .5,las=2, main="Volunteer Hours")
+barplot(vhr$VHR, names.arg = vhr$Cleanup.Date, cex.names = .5,las=2, main="Volunteer Hours Adjusted")
 

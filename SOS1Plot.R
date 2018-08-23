@@ -5,9 +5,14 @@ mdata[,"X..of.Adults"][is.na(mdata[ ,"X..of.Adults"] ) ] = 0
 mdata[,"X..of.Youth"][is.na(mdata[ ,"X..of.Youth"] ) ] = 0
 mdata[,"X..of.Volunteers"][is.na(mdata[ ,"X..of.Volunteers"] ) ] = 0
 mdata$Volunteers.Total <- mdata$X..of.Adults + mdata$X..of.Youth + mdata$X..of.Volunteers
-mdata$Volunteer.Hours.Adjusted = ifelse(mdata$Volunteers.Total>mdata$Volunteer.Hours,
-                                        mdata$Volunteers.Total*mdata$Volunteer.Hours,
-                                        mdata$Volunteer.Hours)
+# Adjusted volunteer hours.
+# If the number of volunteers exceeds the number of hours reported
+# and the number of hours reported is less than 7
+# then adjusted hours is volunteers * hours
+# if no entry for hours or volunteers, enter 1?
+mdata$Volunteer.Hours.Adjusted = ifelse((mdata$Volunteers.Total>mdata$Volunteer.Hours & mdata$Volunteer.Hours < 7),
+                                        (ifelse(mdata$Volunteer.Hours>=1,mdata$Volunteers.Total*mdata$Volunteer.Hours,mdata$Volunteers.Total)),
+                                        (ifelse(mdata$Volunteer.Hours==0,1,mdata$Volunteer.Hours)))
 # plots below
 library(plyr)
 pot <-ddply(mdata, .(year), summarise, POT=sum(Pounds.of.Trash.Collected, na.rm = TRUE))

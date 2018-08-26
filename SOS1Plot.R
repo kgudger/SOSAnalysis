@@ -1,4 +1,5 @@
 mdata <- read.csv("../SOSdata/Merged.csv")
+mdata$Cleanup.Date <- gsub("(.*)/(..)$", "\\1/20\\2", mdata$Cleanup.Date)
 mdata$Cleanup.Date <- as.Date(mdata$Cleanup.Date, format = "%m/%d/%Y")
 mdata[,"Volunteer.Hours"][is.na(mdata[ ,"Volunteer.Hours"] ) ] = 0
 mdata[,"X..of.Adults"][is.na(mdata[ ,"X..of.Adults"] ) ] = 0
@@ -33,15 +34,21 @@ gbt <- ddply(mdata, .(year), summarise, GBT=sum(Glass.Bottles,Beverage.Bottles..
 barplot(pot$POT, names.arg = pot$year, main="Pounds of Trash")
 barplot(por$POR, names.arg = por$year, main="Pounds of Recycle")
 # line plots of Trash, Recycling
-plot(x=pot$year,y=pot$POT,type="o",xlab="Year",ylab="Pounds",pch="O",col="red",main="Trash / Recycling Collected")
+plot(x=pot$year,y=pot$POT,type="o",xlab="Year",ylab="Pounds",pch="O",col="red",main="Trash & Recycling Collected")
 lines(x=por$year,y=por$POR,type="o",col="green", pch="X")
+legend("topleft", c("Trash","Recycling"), 
+       col=c("red","green"), pch=c("O","X"));
+# Now per Volunteer Hour Adjusted
+vol <-ddply(mdata, .(year), summarise, VOL=sum(Volunteers.Total, na.rm = TRUE))
+volh <-ddply(mdata, .(year), summarise, VOLH=sum(Volunteer.Hours.Adjusted, na.rm = TRUE))
+plot(x=pot$year,y=pot$POT/volh$VOLH,type="o",xlab="Year",ylab="Pounds",pch="O",col="red",main="Trash & Recycling Collected / Volunteer Hour Adjusted")
+lines(x=por$year,y=por$POR/volh$VOLH,type="o",col="green", pch="X")
 legend("topleft", c("Trash","Recycling"), 
        col=c("red","green"), pch=c("O","X"));
 #
 barplot(cbs$CBS, names.arg=cbs$year, main="Cigarette Butts")
-
-vol <-ddply(mdata, .(year), summarise, VOL=sum(X..of.Adults,X..of.Youth,X..of.Volunteers, na.rm = TRUE))
-volh <-ddply(mdata, .(year), summarise, VOLH=sum(Volunteer.Hours.Adjusted, na.rm = TRUE))
+barplot(cbs$CBS[-1]/pot$POT[-1],names.arg=pot$year[-1],main="Cigarette Butts / Pounds of Trash")
+#
 barplot(volh$VOLH, names.arg = volh$year, main="Volunteer Hours Adjusted")
 barplot(vol$VOL, names.arg = vol$year, main="Volunteers")
 barplot(volh$VOLH[-1]/vol$VOL[-1],names.arg=vol$year[-1],main="Volunteer Hours Adjusted / Volunteers")

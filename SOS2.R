@@ -154,6 +154,7 @@ mdata <- merged.data.frame %>%
          Cleanup.Area,X..of.Adults,X..of.Youth,Volunteer.Hours,
          Pounds.of.Trash.Collected,Pounds.of.Recycle.Collected,
          everything())
+mdata$Cleanup.Date <- gsub("(.*)/(..)$", "\\1/20\\2", mdata$Cleanup.Date)
 mdata <- droplevels(mdata)
 write.csv(mdata, file="../SOSdata/Merged.csv",row.names=FALSE, na="")
 

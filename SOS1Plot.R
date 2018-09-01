@@ -1,5 +1,4 @@
 mdata <- read.csv("../SOSdata/Merged.csv")
-mdata$Cleanup.Date <- gsub("(.*)/(..)$", "\\1/20\\2", mdata$Cleanup.Date)
 mdata$Cleanup.Date <- as.Date(mdata$Cleanup.Date, format = "%m/%d/%Y")
 mdata[,"Volunteer.Hours"][is.na(mdata[ ,"Volunteer.Hours"] ) ] = 0
 mdata[,"X..of.Adults"][is.na(mdata[ ,"X..of.Adults"] ) ] = 0
@@ -38,6 +37,12 @@ plot(x=pot$year,y=pot$POT,type="o",xlab="Year",ylab="Pounds",pch="O",col="red",m
 lines(x=por$year,y=por$POR,type="o",col="green", pch="X")
 legend("topleft", c("Trash","Recycling"), 
        col=c("red","green"), pch=c("O","X"));
+plot(x=mdata$year,y=mdata$Pounds.of.Trash.Collected,
+     xlab="Year",ylab="Pounds of Trash",
+     main="Pounds of Trash vs Year")
+plot(x=mdata$year,y=mdata$Pounds.of.Recycle.Collected,
+     xlab="Year",ylab="Pounds of Recycle",
+     main="Pounds of Recycle vs Year")
 # Now per Volunteer Hour Adjusted
 vol <-ddply(mdata, .(year), summarise, VOL=sum(Volunteers.Total, na.rm = TRUE))
 volh <-ddply(mdata, .(year), summarise, VOLH=sum(Volunteer.Hours.Adjusted, na.rm = TRUE))
@@ -45,6 +50,12 @@ plot(x=pot$year,y=pot$POT/volh$VOLH,type="o",xlab="Year",ylab="Pounds",pch="O",c
 lines(x=por$year,y=por$POR/volh$VOLH,type="o",col="green", pch="X")
 legend("topleft", c("Trash","Recycling"), 
        col=c("red","green"), pch=c("O","X"));
+plot(x=mdata$year,y=mdata$Pounds.of.Trash.Collected/mdata$Volunteer.Hours.Adjusted,
+     xlab="Year",ylab="Pounds of Trash",
+     main="Pounds of Trash per Volunteer Hour Adjusted vs Year")
+plot(x=mdata$year,y=mdata$Pounds.of.Recycle.Collected/mdata$Volunteer.Hours.Adjusted,
+     xlab="Year",ylab="Pounds of Recycle",
+     main="Pounds of Recycle per Volunteer Hour Adjusted vs Year")
 #
 barplot(cbs$CBS, names.arg=cbs$year, main="Cigarette Butts")
 barplot(cbs$CBS[-1]/pot$POT[-1],names.arg=pot$year[-1],main="Cigarette Butts / Pounds of Trash")

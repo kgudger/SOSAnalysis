@@ -148,4 +148,30 @@ vhr <- vhr[vhr$Cleanup.Date<enddate,]
 vhr <- vhr[vhr$Cleanup.Date>=startdate,]
 #  Volunteer Hours plot for 2017
 barplot(vhr$VHR, names.arg = vhr$Cleanup.Date, cex.names = .5,las=2, main="Volunteer Hours Adjusted")
-
+# Looking at difference between 2009 and 2010
+tpot10 <- mdata[mdata$year=="2010",]
+tpot09 <- mdata[mdata$year=="2009",]
+plot(x=tpot10$Volunteer.Hours.Adjusted,y=tpot10$Pounds.of.Trash.Collected,type="o",xlab="Hours Adj.",ylab="Pounds",pch="O",col="red",main="Trash vs. Vol Hours")
+lines(x=tpot09$Volunteer.Hours.Adjusted,y=tpot09$Pounds.of.Trash.Collected,col="green",type="o",pch="X")
+legend("topright",c("2010","2009"),col=c("red","green"),pch=c("O","X"))
+summary(tpot09$Volunteers.Total)
+summary(tpot10$Volunteers.Total)
+plot(x=mdata$year,y=mdata$Volunteers.Total,
+     xlab="Year",ylab="Volunteers",
+     main="Volunteers vs Year")
+# Let's look at 2009
+startdate <- as.Date(c("01/01/2009"), format = "%m/%d/%Y")
+enddate   <- as.Date(c("01/01/2010"), format = "%m/%d/%Y")
+sdtt <- ddply(mdata, .(Cleanup.Date), summarise, SDTT=sum(Pounds.of.Trash.Collected, na.rm = TRUE))
+sdtt <- sdtt[sdtt$Cleanup.Date<enddate,]
+sdtt <- sdtt[sdtt$Cleanup.Date>=startdate,]
+#  trash plot for 2017
+barplot(sdtt$SDTT, names.arg = sdtt$Cleanup.Date, cex.names = .5,las=2, main="Pounds of Trash")
+# Let's look at 2010
+startdate <- as.Date(c("01/01/2010"), format = "%m/%d/%Y")
+enddate   <- as.Date(c("01/01/2011"), format = "%m/%d/%Y")
+sdtt <- ddply(mdata, .(Cleanup.Date), summarise, SDTT=sum(Pounds.of.Trash.Collected, na.rm = TRUE))
+sdtt <- sdtt[sdtt$Cleanup.Date<enddate,]
+sdtt <- sdtt[sdtt$Cleanup.Date>=startdate,]
+#  trash plot for 2017
+barplot(sdtt$SDTT, names.arg = sdtt$Cleanup.Date, cex.names = .5,las=2, main="Pounds of Trash")
